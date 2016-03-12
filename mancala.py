@@ -28,6 +28,13 @@ def canBeInt(s): #Checks if a string can be an integer.
     except ValueError:
         return False
 
+def checkSave(): #Checks if there is a save file
+    try: 
+        open("save.txt", "r")
+        return True
+    except FileNotFoundError:
+        return False
+
 def makeTurn(): #This will prompt a player to choose a pot.
     global player
     global side1
@@ -39,13 +46,63 @@ def makeTurn(): #This will prompt a player to choose a pot.
         chosenPot = input("You're player 1, so choose from the bottom six.\n")
     else:
         chosenPot = input("You're player 2, so choose from the top six.\n")
+    #end if
 
     if chosenPot.lower() == "q":
         return "stop"
+    elif chosenPot.lower() == "s":
+        
+        with open("save.txt", "w") as f: #Open new file called "save.txt" and erase any previous saves
+            for i in range(0,7):
+                f.write(str(side1[i]))
+                f.write(" ")
+            #end for
 
+            f.write("\n")
+            
+            for i in range(0,7):
+                f.write(str(side2[i]))
+                f.write(" ")
+            #end for
+
+            f.write("\n")
+            
+            print("Game has been saved.")
+        #end with. Close file!
+
+    elif chosenPot.lower() == "l":
+        if checkSave():
+            with open("save.txt", "r") as f:
+                data = f.readlines() #Loads the data
+
+                side = 1
+                for line in data: #Splits data into lines
+                    numbers = line.split() #Splits the lines into arrays
+                    
+                    if side == 2:
+                        for i in range(0,7):                            
+                            side2[i] = int(numbers[i])
+                        #end for
+                    elif side == 1:
+                        for i in range(0,7):
+                            side1[i] = int(numbers[i])
+                        #end for
+                    #end if
+                        
+                    side = 2
+                #end for
+            print("Data successfully loaded.")
+            refreshBoard()
+            #end with. Close file!
+        else:
+            print("There is no save file yet! Type S to save!")
+            
+                
     while validPot == False:
-        if canBeInt(chosenPot) == False: #Input validation on chosen pot
+        if canBeInt(chosenPot) == False and chosenPot != "s" and chosenPot != "l": #Input validation on chosen pot
             print("That's not a valid pot number. Please try again.")
+        elif chosenPot == "s" or chosenPot == "l":
+            print("Please pick a number.")
         else:
             chosenPot = int(chosenPot)
             if chosenPot < 1 or chosenPot > 6:
